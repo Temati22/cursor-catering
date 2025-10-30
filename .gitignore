@@ -105,6 +105,15 @@ public/uploads/
 # Database
 *.sqlite
 *.db
+backend/data/data.db
+backend/data_backup*/
+
+# Build outputs (keep uploaded files)
+backend/dist/
+backend/.strapi/
+apps/web/.next/
+apps/web/playwright-report/
+apps/web/tests/screenshots/
 
 # Docker
 .dockerignore
