@@ -1,0 +1,82 @@
+{
+    "kind": "collectionType",
+    "collectionName": "marketing_banners",
+    "info": {
+        "singularName": "marketing-banner",
+        "pluralName": "marketing-banners",
+        "displayName": "Marketing Banner",
+        "description": "Marketing banners with text and image"
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "title": {
+            "type": "string",
+            "required": true
+        },
+        "slug": {
+            "type": "uid",
+            "targetField": "title",
+            "required": true
+        },
+        "text": {
+            "type": "text",
+            "required": true
+        },
+        "image": {
+            "type": "media",
+            "multiple": false,
+            "required": false,
+            "allowedTypes": [
+                "images"
+            ]
+        },
+        "icon": {
+            "type": "media",
+            "multiple": false,
+            "required": false,
+            "allowedTypes": [
+                "images"
+            ]
+        },
+        "link": {
+            "type": "string",
+            "description": "Optional link URL for the banner"
+        },
+        "linkText": {
+            "type": "string",
+            "description": "Text for the link button"
+        },
+        "isActive": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether the banner is currently active"
+        },
+        "position": {
+            "type": "enumeration",
+            "enum": [
+                "top",
+                "middle",
+                "bottom",
+                "sidebar"
+            ],
+            "default": "top",
+            "description": "Position where the banner should be displayed"
+        },
+        "priority": {
+            "type": "integer",
+            "default": 0,
+            "description": "Priority for banner ordering (higher number = higher priority)"
+        },
+        "startDate": {
+            "type": "datetime",
+            "description": "Start date for banner display"
+        },
+        "endDate": {
+            "type": "datetime",
+            "description": "End date for banner display"
+        }
+    }
+}

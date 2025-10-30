@@ -1,0 +1,94 @@
+{
+  "kind": "collectionType",
+  "collectionName": "menus",
+  "info": {
+    "singularName": "menu",
+    "pluralName": "menus",
+    "displayName": "Menu",
+    "description": "Menu collections for different occasions"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name",
+      "required": true
+    },
+    "smallDescription": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "type": {
+      "type": "enumeration",
+      "default": "gastrobox",
+      "enum": [
+        "gastrobox",
+        "coffee-break",
+        "buffet",
+        "banquet",
+        "barbecue-banquet",
+        "kids-menu",
+        "mobile-bar",
+        "hookah-catering",
+        "boat-sets"
+      ]
+    },
+    "occasion": {
+      "type": "enumeration",
+      "default": "casual",
+      "enum": [
+        "wedding",
+        "corporate",
+        "birthday",
+        "anniversary",
+        "holiday",
+        "casual",
+        "formal",
+        "buffet"
+      ]
+    },
+    "servingSize": {
+      "type": "integer"
+    },
+    "pricePerPerson": {
+      "type": "decimal"
+    },
+    "currency": {
+      "type": "string",
+      "default": "руб"
+    },
+    "image": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "dishes": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::dish.dish",
+      "mappedBy": "menu"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "validFrom": {
+      "type": "datetime"
+    },
+    "validUntil": {
+      "type": "datetime"
+    }
+  }
+}

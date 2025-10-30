@@ -1,0 +1,108 @@
+{
+  "kind": "singleType",
+  "collectionName": "globals",
+  "info": {
+    "singularName": "global",
+    "pluralName": "globals",
+    "displayName": "Global",
+    "description": "Define global settings"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "siteName": {
+      "type": "string",
+      "required": true
+    },
+    "favicon": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos"
+      ]
+    },
+    "siteDescription": {
+      "type": "text",
+      "required": true
+    },
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "heroTitle": {
+      "type": "string",
+      "required": false
+    },
+    "heroSubtitle": {
+      "type": "string",
+      "required": false
+    },
+    "heroDescription": {
+      "type": "text",
+      "required": false
+    },
+    "featuresImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "ctaImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "defaultSeo": {
+      "type": "component",
+      "component": "shared.seo",
+      "repeatable": false
+    },
+    "socialLinks": {
+      "type": "component",
+      "component": "shared.social-links",
+      "repeatable": false
+    },
+    "contactInfo": {
+      "type": "component",
+      "component": "shared.contact-info",
+      "repeatable": false
+    },
+    "aboutImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "aboutText1": {
+      "type": "text",
+      "required": false
+    },
+    "aboutText2": {
+      "type": "text",
+      "required": false
+    },
+    "imgLogo": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    }
+  }
+}

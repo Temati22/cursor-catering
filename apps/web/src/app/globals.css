@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Hi Color Palette */
+  --color-hi-white: #FFFFFF;
+  --color-hi-graphite: #2B2B2B;
+  --color-hi-ash: #F5F5F5;
+  --color-hi-platinum: #BFA76F;
+  --color-hi-deep: #1A1A1A;
+  --color-hi-silver: #D8D8D8;
+  --color-hi-red: #C64848;
+  --color-hi-green: #5AA469;
+  --color-hi-luxe: #2B2B2B;
+
+  /* Hi Background Gradients */
+  --gradient-hi-luxe: linear-gradient(90deg, #2B2B2B 0%, #BFA76F 100%);
+  --gradient-hi-soft: linear-gradient(180deg, #FFFFFF 0%, #F5F5F5 100%);
+
+  /* Hi Font Families */
+  --font-serif: "Times New Roman", serif;
+  --font-sans: "Inter", sans-serif;
+
+  /* Hi Box Shadows */
+  --shadow-hi: 0 4px 25px rgba(0, 0, 0, 0.08);
+  --shadow-hi-hover: 0 8px 35px rgba(0, 0, 0, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #fff;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Ensure input fields have proper text color */
+input,
+textarea,
+select {
+  color: #2B2B2B !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #999999;
+  opacity: 1;
+}
+
+/* Ensure proper contrast for accessibility */
+.text-hi-graphite {
+  color: #2B2B2B;
+}
+
+.text-hi-white {
+  color: #FFFFFF;
+}
+
+.bg-hi-white {
+  background-color: #FFFFFF;
+}
+
+.bg-hi-ash {
+  background-color: #F5F5F5;
+}
+
+.bg-hi-platinum {
+  background-color: #BFA76F;
+}
+
+.bg-hi-red {
+  background-color: #C64848;
+}
+
+.bg-hi-green {
+  background-color: #5AA469;
+}
+
+/* Global dark background utility */
+.bg-hi-dark {
+  background-color: #1E1F26;
+}
+
+.border-hi-silver {
+  border-color: #D8D8D8;
+}
+
+.shadow-to-block {
+  box-shadow: 0px 5px 10px #1e1f27;
+}
+
+/* Fix line-clamp utility */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}

@@ -1,0 +1,268 @@
+/* FirstMainBlock.module.css */
+
+.heroSection {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.leftColumn {
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+}
+
+.rightColumn {
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+}
+
+.content {
+    max-width: 500px;
+    width: 100%;
+}
+
+.logo {
+    margin-bottom: 3rem;
+}
+
+.logoMain {
+    font-size: 4rem;
+    font-weight: 900;
+    color: #000000;
+    line-height: 0.9;
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.logoMain::after {
+    content: '';
+    position: absolute;
+    top: 0.2rem;
+    right: -0.5rem;
+    width: 0.4rem;
+    height: 0.4rem;
+    background-color: #000000;
+    border-radius: 50%;
+}
+
+.logoSub {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #000000;
+    letter-spacing: 0.3em;
+    margin-left: 0.2rem;
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #000000;
+    line-height: 1.2;
+    margin-bottom: 2rem;
+    max-width: 90%;
+}
+
+.description {
+    font-size: 1.125rem;
+    font-weight: 400;
+    color: #000000;
+    line-height: 1.6;
+    margin-bottom: 3rem;
+    max-width: 90%;
+}
+
+.ctaButton {
+    background-color: #bfa76f;
+    color: #ffffff;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(191, 167, 111, 0.3);
+}
+
+.ctaButton:hover {
+    background-color: #a89660;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(191, 167, 111, 0.4);
+}
+
+.ctaButton:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(191, 167, 111, 0.3);
+}
+
+.imageContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.heroImage {
+    object-fit: cover;
+    object-position: center;
+}
+
+.placeholderImage {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #dee2e6;
+    border-radius: 1rem;
+}
+
+.placeholderText {
+    color: #6c757d;
+    font-size: 1.125rem;
+    font-weight: 500;
+}
+
+.loadingText {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 0.25rem;
+    display: inline-block;
+}
+
+/* Animation keyframes */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+    .container {
+        grid-template-columns: 1fr;
+        min-height: auto;
+    }
+
+    .leftColumn {
+        min-height: 60vh;
+        padding: 3rem 2rem;
+    }
+
+    .rightColumn {
+        min-height: 40vh;
+        padding: 2rem;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .logoMain {
+        font-size: 3rem;
+    }
+
+    .logoSub {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .leftColumn,
+    .rightColumn {
+        padding: 1.5rem;
+    }
+
+    .title {
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .description {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .logo {
+        margin-bottom: 2rem;
+    }
+
+    .logoMain {
+        font-size: 2.5rem;
+    }
+
+    .logoSub {
+        font-size: 1rem;
+        letter-spacing: 0.2em;
+    }
+
+    .ctaButton {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .imageContainer {
+        min-height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .logoMain {
+        font-size: 2rem;
+    }
+
+    .logoSub {
+        font-size: 0.875rem;
+    }
+
+    .ctaButton {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.8rem;
+    }
+}

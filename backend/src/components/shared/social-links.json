@@ -1,0 +1,26 @@
+{
+    "collectionName": "components_shared_social_links",
+    "info": {
+        "displayName": "Social Links",
+        "description": "Social media links and contact information"
+    },
+    "options": {},
+    "attributes": {
+        "vk": {
+            "type": "string",
+            "description": "VKontakte profile URL"
+        },
+        "instagram": {
+            "type": "string",
+            "description": "Instagram profile URL"
+        },
+        "telegram": {
+            "type": "string",
+            "description": "Telegram profile URL"
+        },
+        "whatsapp": {
+            "type": "string",
+            "description": "WhatsApp contact URL"
+        }
+    }
+}

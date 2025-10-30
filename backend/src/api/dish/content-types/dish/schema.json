@@ -1,0 +1,102 @@
+{
+  "kind": "collectionType",
+  "collectionName": "dishes",
+  "info": {
+    "singularName": "dish",
+    "pluralName": "dishes",
+    "displayName": "Dish",
+    "description": "Individual dishes and menu items"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "price": {
+      "type": "decimal",
+      "required": true
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    },
+    "images": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "ingredients": {
+      "type": "text"
+    },
+    "allergens": {
+      "type": "text"
+    },
+    "nutritionalInfo": {
+      "type": "json"
+    },
+    "isVegetarian": {
+      "type": "boolean",
+      "default": false
+    },
+    "isVegan": {
+      "type": "boolean",
+      "default": false
+    },
+    "isGlutenFree": {
+      "type": "boolean",
+      "default": false
+    },
+    "isSpicy": {
+      "type": "boolean",
+      "default": false
+    },
+    "preparationTime": {
+      "type": "integer",
+      "description": "Preparation time in minutes"
+    },
+    "servingSize": {
+      "type": "string"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "cold",
+        "hot",
+        "side",
+        "baked",
+        "drink",
+        "sweet",
+        "other"
+      ],
+      "default": "other",
+      "required": false
+    },
+    "category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::category.category",
+      "inversedBy": "dishes"
+    },
+    "menu": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::menu.menu",
+      "inversedBy": "dishes"
+    }
+  }
+}

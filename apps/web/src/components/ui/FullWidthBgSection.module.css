@@ -1,0 +1,19 @@
+/* Основная секция на всю ширину экрана */
+.fullWidthSection {
+    position: relative;
+    width: 100%;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-attachment: scroll;
+
+    /* Обеспечиваем плавное поведение для фонового изображения */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    /* Убираем возможные отступы */
+    margin: 0;
+    padding: 0;
+}

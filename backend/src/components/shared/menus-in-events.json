@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_shared_menus_in_events",
+  "info": {
+    "displayName": "MenusInEvents",
+    "icon": "layer"
+  },
+  "options": {},
+  "attributes": {
+    "menus": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::menu.menu"
+    }
+  },
+  "config": {}
+}

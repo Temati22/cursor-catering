@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_contacts_contacts",
+  "info": {
+    "displayName": "Contacts",
+    "icon": "alien"
+  },
+  "options": {},
+  "attributes": {
+    "phone1": {
+      "type": "string"
+    },
+    "phone2": {
+      "type": "string"
+    },
+    "email": {
+      "type": "email"
+    },
+    "address": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

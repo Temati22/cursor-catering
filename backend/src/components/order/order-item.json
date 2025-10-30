@@ -1,0 +1,28 @@
+{
+    "collectionName": "components_order_order_items",
+    "info": {
+        "displayName": "Order Item",
+        "description": "Individual menu item in an order"
+    },
+    "options": {},
+    "attributes": {
+        "menu": {
+            "type": "relation",
+            "relation": "oneToOne",
+            "target": "api::menu.menu"
+        },
+        "quantity": {
+            "type": "integer",
+            "required": true,
+            "min": 1
+        },
+        "unitPrice": {
+            "type": "decimal",
+            "required": true
+        },
+        "totalPrice": {
+            "type": "decimal",
+            "required": true
+        }
+    }
+}

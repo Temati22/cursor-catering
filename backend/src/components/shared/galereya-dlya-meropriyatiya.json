@@ -1,0 +1,34 @@
+{
+  "collectionName": "components_shared_galereya_dlya_meropriyatiya",
+  "info": {
+    "displayName": "Галерея для мероприятия",
+    "icon": "landscape"
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "string"
+    },
+    "backgroundImg": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "Images": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    }
+  },
+  "config": {}
+}

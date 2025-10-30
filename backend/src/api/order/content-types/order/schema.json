@@ -1,0 +1,88 @@
+{
+    "kind": "collectionType",
+    "collectionName": "orders",
+    "info": {
+        "singularName": "order",
+        "pluralName": "orders",
+        "displayName": "Order",
+        "description": "Customer orders for menus"
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "orderNumber": {
+            "type": "string",
+            "required": true,
+            "unique": true
+        },
+        "customerName": {
+            "type": "string",
+            "required": true
+        },
+        "customerPhone": {
+            "type": "string",
+            "required": true
+        },
+        "customerEmail": {
+            "type": "email"
+        },
+        "deliveryAddress": {
+            "type": "text"
+        },
+        "deliveryDate": {
+            "type": "datetime"
+        },
+        "deliveryTime": {
+            "type": "string"
+        },
+        "notes": {
+            "type": "text"
+        },
+        "status": {
+            "type": "enumeration",
+            "default": "pending",
+            "enum": [
+                "pending",
+                "confirmed",
+                "preparing",
+                "ready",
+                "delivered",
+                "cancelled"
+            ]
+        },
+        "totalAmount": {
+            "type": "decimal",
+            "required": true
+        },
+        "currency": {
+            "type": "string",
+            "default": "руб"
+        },
+        "orderItems": {
+            "type": "component",
+            "repeatable": true,
+            "component": "order.order-item"
+        },
+        "paymentStatus": {
+            "type": "enumeration",
+            "default": "pending",
+            "enum": [
+                "pending",
+                "paid",
+                "failed",
+                "refunded"
+            ]
+        },
+        "paymentMethod": {
+            "type": "enumeration",
+            "enum": [
+                "cash",
+                "card",
+                "online",
+                "bank_transfer"
+            ]
+        }
+    }
+}
