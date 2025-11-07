@@ -1,48 +1,120 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useContactsData } from '@/hooks/useContactsData';
 import { StrapiImage } from '@/components/ui/StrapiImage';
 import { ImagePlaceholder } from '@/components/ui/ImagePlaceholder';
 import { FallbackComponent } from '@/components/ui/FallbackComponent';
 import Link from 'next/link';
-
-// Helper function to get absolute URL for images
-const getImageUrl = (url: string | undefined | null): string => {
-    if (!url) {
-        return '';
-    }
-    if (url.startsWith('http')) {
-        return url;
-    }
-    return `http://localhost:1337${url}`;
-};
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { getImageUrl } from '@/lib/imageUtils';
 
 export function AboutSection() {
     const { globalData, aboutImage, aboutText1, aboutText2, loading } = useContactsData();
-    const [imageError, setImageError] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
+
+    // Проверяем, является ли aboutImage массивом или одиночным изображением
+    const imagesArray = Array.isArray(aboutImage) ? aboutImage : aboutImage ? [aboutImage] : [];
+    const hasMultipleImages = imagesArray.length > 1;
+
+    const handleImageError = (index: number) => {
+        setImageErrors(prev => new Set(prev).add(index));
+    };
+
+    const goToNext = () => {
+        setCurrentImageIndex((prev) => (prev + 1) % imagesArray.length);
+    };
+
+    const goToPrevious = () => {
+        setCurrentImageIndex((prev) => (prev - 1 + imagesArray.length) % imagesArray.length);
+    };
 
     return (
-        <section className="relative py-16 sm:py-20 lg:py-24 bg-hi-white">
+        <section className="relative py-8 pb-0 sm:py-20 lg:py-24 bg-hi-white">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-                    {/* Left side - Image */}
+                    {/* Left side - Image Gallery */}
                     <motion.div
-                        className="relative h-80 sm:h-96 lg:h-[500px] rounded-lg overflow-hidden"
+                        className="relative h-80 sm:h-96 lg:h-[500px] rounded-lg overflow-hidden group"
                         initial={{ opacity: 0, x: -20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.6 }}
                         viewport={{ once: true }}
                     >
-                        {aboutImage && aboutImage.url && !imageError ? (
-                            <StrapiImage
-                                src={getImageUrl(aboutImage.url)}
-                                alt={aboutImage.alternativeText || 'О нашей компании'}
-                                fill
-                                className="object-cover"
-                                onError={() => setImageError(true)}
-                            />
+                        {imagesArray.length > 0 ? (
+                            <>
+                                <AnimatePresence mode="wait">
+                                    {imagesArray.map((image, index) => {
+                                        if (index !== currentImageIndex) return null;
+                                        const imageError = imageErrors.has(index);
+
+                                        return (
+                                            <motion.div
+                                                key={image.id}
+                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                exit={{ opacity: 0, scale: 1.1 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="absolute inset-0"
+                                            >
+                                                {!imageError ? (
+                                                    <StrapiImage
+                                                        src={getImageUrl(image.url)}
+                                                        alt={image.alternativeText || 'О нашей компании'}
+                                                        fill
+                                                        className="object-cover"
+                                                        onError={() => handleImageError(index)}
+                                                    />
+                                                ) : (
+                                                    <ImagePlaceholder
+                                                        className="w-full h-full bg-hi-ash"
+                                                        text="Изображение не загружено"
+                                                    />
+                                                )}
+                                            </motion.div>
+                                        );
+                                    })}
+                                </AnimatePresence>
+
+                                {/* Navigation arrows */}
+                                {hasMultipleImages && (
+                                    <>
+                                        <button
+                                            onClick={goToPrevious}
+                                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-hi-graphite/80 hover:bg-hi-graphite text-white p-3 md:p-2 h-11 w-11 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                            aria-label="Предыдущее изображение"
+                                        >
+                                            <ChevronLeft className="h-6 w-6" />
+                                        </button>
+                                        <button
+                                            onClick={goToNext}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-hi-graphite/80 hover:bg-hi-graphite text-white p-3 md:p-2 h-11 w-11 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                                            aria-label="Следующее изображение"
+                                        >
+                                            <ChevronRight className="h-6 w-6" />
+                                        </button>
+                                    </>
+                                )}
+
+                                {/* Dots indicator */}
+                                {hasMultipleImages && (
+                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                                        {imagesArray.map((_, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => setCurrentImageIndex(index)}
+                                                className={`w-2 h-2 rounded-full transition-all ${index === currentImageIndex
+                                                    ? 'bg-white w-8'
+                                                    : 'bg-white/80 md:bg-white/50 hover:bg-white/90'
+                                                    }`}
+                                                aria-label={`Перейти к изображению ${index + 1}`}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </>
                         ) : (
                             <ImagePlaceholder
                                 className="w-full h-full bg-hi-ash"
@@ -60,12 +132,12 @@ export function AboutSection() {
                         viewport={{ once: true }}
                     >
                         <div className="text-center lg:text-left">
-                            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-hi-graphite mb-6">
+                            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-hi-graphite mb-6 tracking-tight sm:tracking-normal">
                                 • О НАШЕЙ КОМПАНИИ •
                             </h2>
                         </div>
 
-                        <div className="space-y-4 text-hi-graphite">
+                        <div className="space-y-5 sm:space-y-6 text-hi-graphite">
                             {loading ? (
                                 <FallbackComponent
                                     message="Загружаем информацию о компании..."
@@ -98,7 +170,7 @@ export function AboutSection() {
                         >
                             <Link
                                 href="/contacts"
-                                className="inline-flex items-center justify-center rounded-lg bg-hi-platinum px-6 py-3 text-base font-medium text-hi-white shadow-hi transition-all hover:shadow-hi-hover hover:bg-hi-platinum/90 focus:outline-none focus:ring-2 focus:ring-hi-platinum focus:ring-offset-2"
+                                className="inline-flex items-center justify-center rounded-lg bg-hi-platinum px-6 py-3 text-base font-medium text-hi-white shadow-hi transition-all hover:shadow-hi-hover hover:bg-hi-platinum/90 focus:outline-none focus:ring-2 focus:ring-hi-platinum focus:ring-offset-2 min-w-[240px]"
                             >
                                 СВЯЗАТЬСЯ С НАМИ
                             </Link>

@@ -103,6 +103,14 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::dish.dish"
+    },
+    "TitleInmenu": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": {
+          "localized": true
+        }
+      }
     }
   }
 }

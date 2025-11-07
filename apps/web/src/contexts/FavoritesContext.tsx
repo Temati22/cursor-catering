@@ -1,14 +1,15 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { Menu, Dish, EventPage } from '@/lib/api';
+import { Menu, Dish, EventPage, Service } from '@/lib/api';
 
 export interface FavoriteItem {
     id: number;
-    type: 'event' | 'dish' | 'menu';
+    type: 'event' | 'dish' | 'menu' | 'service';
     event?: EventPage;
     dish?: Dish;
     menu?: Menu;
+    service?: Service;
     addedAt: string;
 }
 
@@ -21,7 +22,8 @@ type FavoritesAction =
     | { type: 'ADD_EVENT'; payload: EventPage }
     | { type: 'ADD_DISH'; payload: Dish }
     | { type: 'ADD_MENU'; payload: Menu }
-    | { type: 'REMOVE_FAVORITE'; payload: { id: number; type: 'event' | 'dish' | 'menu' } }
+    | { type: 'ADD_SERVICE'; payload: Service }
+    | { type: 'REMOVE_FAVORITE'; payload: { id: number; type: 'event' | 'dish' | 'menu' | 'service' } }
     | { type: 'CLEAR_FAVORITES' }
     | { type: 'LOAD_FAVORITES'; payload: FavoriteItem[] };
 
@@ -101,6 +103,29 @@ function favoritesReducer(state: FavoritesState, action: FavoritesAction): Favor
             };
         }
 
+        case 'ADD_SERVICE': {
+            const service = action.payload;
+            const existingItem = state.items.find(item => item.type === 'service' && item.service?.id === service.id);
+
+            if (existingItem) {
+                return state; // Already in favorites
+            }
+
+            const newItem: FavoriteItem = {
+                id: service.id,
+                type: 'service',
+                service,
+                addedAt: new Date().toISOString(),
+            };
+
+            const newItems = [...state.items, newItem];
+            return {
+                ...state,
+                items: newItems,
+                totalItems: newItems.length,
+            };
+        }
+
         case 'REMOVE_FAVORITE': {
             const { id, type } = action.payload;
             const newItems = state.items.filter(item => {
@@ -113,6 +138,8 @@ function favoritesReducer(state: FavoritesState, action: FavoritesAction): Favor
                         return item.dish?.id !== id;
                     case 'menu':
                         return item.menu?.id !== id;
+                    case 'service':
+                        return item.service?.id !== id;
                     default:
                         return true;
                 }
@@ -150,10 +177,11 @@ interface FavoritesContextType {
     addEvent: (event: EventPage) => void;
     addDish: (dish: Dish) => void;
     addMenu: (menu: Menu) => void;
-    removeFavorite: (id: number, type: 'event' | 'dish' | 'menu') => void;
+    addService: (service: Service) => void;
+    removeFavorite: (id: number, type: 'event' | 'dish' | 'menu' | 'service') => void;
     clearFavorites: () => void;
-    isFavorite: (id: number, type: 'event' | 'dish' | 'menu') => boolean;
-    getFavoritesByType: (type: 'event' | 'dish' | 'menu') => FavoriteItem[];
+    isFavorite: (id: number, type: 'event' | 'dish' | 'menu' | 'service') => boolean;
+    getFavoritesByType: (type: 'event' | 'dish' | 'menu' | 'service') => FavoriteItem[];
 }
 
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
@@ -191,7 +219,11 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
         dispatch({ type: 'ADD_MENU', payload: menu });
     };
 
-    const removeFavorite = (id: number, type: 'event' | 'dish' | 'menu') => {
+    const addService = (service: Service) => {
+        dispatch({ type: 'ADD_SERVICE', payload: service });
+    };
+
+    const removeFavorite = (id: number, type: 'event' | 'dish' | 'menu' | 'service') => {
         dispatch({ type: 'REMOVE_FAVORITE', payload: { id, type } });
     };
 
@@ -199,7 +231,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
         dispatch({ type: 'CLEAR_FAVORITES' });
     };
 
-    const isFavorite = (id: number, type: 'event' | 'dish' | 'menu'): boolean => {
+    const isFavorite = (id: number, type: 'event' | 'dish' | 'menu' | 'service'): boolean => {
         return state.items.some(item => {
             if (item.type !== type) return false;
 
@@ -210,13 +242,15 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
                     return item.dish?.id === id;
                 case 'menu':
                     return item.menu?.id === id;
+                case 'service':
+                    return item.service?.id === id;
                 default:
                     return false;
             }
         });
     };
 
-    const getFavoritesByType = (type: 'event' | 'dish' | 'menu'): FavoriteItem[] => {
+    const getFavoritesByType = (type: 'event' | 'dish' | 'menu' | 'service'): FavoriteItem[] => {
         return state.items.filter(item => item.type === type);
     };
 
@@ -227,6 +261,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
                 addEvent,
                 addDish,
                 addMenu,
+                addService,
                 removeFavorite,
                 clearFavorites,
                 isFavorite,

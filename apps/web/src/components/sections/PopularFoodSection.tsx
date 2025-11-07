@@ -7,14 +7,7 @@ import { StrapiImage } from '@/components/ui/StrapiImage';
 import { ImagePlaceholder } from '@/components/ui/ImagePlaceholder';
 import { Button } from '@/components/ui/Button';
 import { FallbackComponent } from '@/components/ui/FallbackComponent';
-
-// Helper function to get absolute URL for images
-const getImageUrl = (url: string): string => {
-    if (url.startsWith('http')) {
-        return url;
-    }
-    return `http://localhost:1337${url}`;
-};
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface PopularFoodSectionProps {
     limit?: number;

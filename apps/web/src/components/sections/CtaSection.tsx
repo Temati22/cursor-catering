@@ -6,17 +6,7 @@ import { useState } from 'react';
 import { useContactsData } from '@/hooks/useContactsData';
 import { StrapiImage } from '@/components/ui/StrapiImage';
 import { ImagePlaceholder } from '@/components/ui/ImagePlaceholder';
-
-// Helper function to get absolute URL for images
-const getImageUrl = (url: string | undefined | null): string => {
-    if (!url) {
-        return '';
-    }
-    if (url.startsWith('http')) {
-        return url;
-    }
-    return `http://localhost:1337${url}`;
-};
+import { getImageUrl } from '@/lib/imageUtils';
 
 export function CtaSection() {
     const { globalData, primaryPhone, email } = useContactsData();

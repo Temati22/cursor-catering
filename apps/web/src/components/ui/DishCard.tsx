@@ -5,17 +5,7 @@ import { ShoppingCart, Plus, Minus } from 'lucide-react';
 import { Dish, DishType, DISH_TYPE_LABELS } from '@/lib/api';
 import { StrapiImage } from '@/components/ui/StrapiImage';
 import { useCart } from '@/contexts/CartContext';
-
-// Helper function to get absolute URL for images
-const getImageUrl = (url: string | undefined | null): string => {
-    if (!url) {
-        return '';
-    }
-    if (url.startsWith('http')) {
-        return url;
-    }
-    return `http://localhost:1337${url}`;
-};
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface DishCardProps {
     dish: Dish;

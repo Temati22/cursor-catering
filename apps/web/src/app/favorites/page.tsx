@@ -5,7 +5,8 @@ import { useFavorites } from '@/contexts/FavoritesContext';
 import { EventCard } from '@/components/ui/EventCard';
 import { DishCard } from '@/components/ui/DishCard';
 import { MenuCard } from '@/components/ui/MenuCard';
-import { Heart, Calendar, Utensils, BookOpen, Trash2 } from 'lucide-react';
+import { ServiceCard } from '@/components/ui/ServiceCard';
+import { Heart, Calendar, Utensils, BookOpen, Briefcase, Trash2 } from 'lucide-react';
 
 export default function FavoritesPage() {
     const { state, getFavoritesByType, clearFavorites } = useFavorites();
@@ -13,6 +14,7 @@ export default function FavoritesPage() {
     const favoriteEvents = getFavoritesByType('event');
     const favoriteDishes = getFavoritesByType('dish');
     const favoriteMenus = getFavoritesByType('menu');
+    const favoriteServices = getFavoritesByType('service');
 
     const handleClearAll = () => {
         if (window.confirm('Вы уверены, что хотите очистить весь список избранного?')) {
@@ -31,7 +33,7 @@ export default function FavoritesPage() {
                             <h1 className="text-3xl font-bold text-hi-graphite">Избранное</h1>
                         </div>
                         <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                            Здесь будут храниться ваши любимые мероприятия, блюда и меню
+                            Здесь будут храниться ваши любимые мероприятия, блюда, меню и услуги
                         </p>
                     </div>
 
@@ -42,7 +44,7 @@ export default function FavoritesPage() {
                             У вас пока нет избранных элементов
                         </h2>
                         <p className="text-gray-500 max-w-md mx-auto mb-8">
-                            Нажимайте на сердечко на карточках мероприятий, блюд и меню, чтобы добавить их в избранное.
+                            Нажимайте на сердечко на карточках мероприятий, блюд, меню и услуг, чтобы добавить их в избранное.
                         </p>
                         <div className="space-y-4">
                             <a
@@ -97,6 +99,26 @@ export default function FavoritesPage() {
                                 <EventCard
                                     key={item.event.id}
                                     event={item.event}
+                                />
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* Services Section */}
+                {favoriteServices.length > 0 && (
+                    <section className="mb-16">
+                        <div className="flex items-center mb-8">
+                            <Briefcase className="text-hi-green mr-2" size={24} />
+                            <h2 className="text-2xl font-bold text-hi-graphite">
+                                Услуги ({favoriteServices.length})
+                            </h2>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                            {favoriteServices.map((item) => item.service && (
+                                <ServiceCard
+                                    key={item.service.id}
+                                    service={item.service}
                                 />
                             ))}
                         </div>

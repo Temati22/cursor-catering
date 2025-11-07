@@ -159,6 +159,38 @@ async function setupPermissions() {
         }
       });
 
+      // Разрешаем доступ к услугам
+      await strapi.query('plugin::users-permissions.permission').create({
+        data: {
+          action: 'api::service.service.find',
+          subject: null,
+          properties: {},
+          conditions: [],
+          role: publicRole.id,
+        }
+      });
+
+      await strapi.query('plugin::users-permissions.permission').create({
+        data: {
+          action: 'api::service.service.findOne',
+          subject: null,
+          properties: {},
+          conditions: [],
+          role: publicRole.id,
+        }
+      });
+
+      // Разрешаем доступ к галерее
+      await strapi.query('plugin::users-permissions.permission').create({
+        data: {
+          action: 'api::gallery.gallery.find',
+          subject: null,
+          properties: {},
+          conditions: [],
+          role: publicRole.id,
+        }
+      });
+
       console.log('✅ Permissions configured successfully');
     } else {
       console.log('❌ Public role not found');

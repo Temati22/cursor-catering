@@ -20,24 +20,8 @@ interface FirstMainBlockProps {
 export function FirstMainBlock({ onOpenPopup }: FirstMainBlockProps) {
     const { globalData, heroTitle, heroSubtitle, heroDescription, loading, ctaImage } = useGlobalData();
     const [imageError, setImageError] = useState(false);
-
     // Получаем изображение с fallback для надёжности
     const heroImageData = getImageWithFallback(globalData?.heroImage, 'hero', 'original');
-
-    // Helper function to get absolute URL for images
-    const getImageUrl = (url: string | undefined | null): string => {
-        if (!url) {
-            return '';
-        }
-        if (url.startsWith('http')) {
-            return url;
-        }
-        return `http://localhost:1337${url}`;
-    };
-
-    // Отладочная информация
-    console.log('ctaImage:', ctaImage);
-    console.log('ctaImage?.url:', ctaImage?.url);
 
     // Временно используем отдельные свойства для гарантии отображения
     return (
@@ -48,7 +32,7 @@ export function FirstMainBlock({ onOpenPopup }: FirstMainBlockProps) {
             backgroundSize="contain"
             backgroundRepeat="no-repeat"
             minHeight="500px"
-            containerWidth="w-full max-w-7xl mx-auto py-12"
+            containerWidth="w-full max-w-7xl mx-auto md:py-12 "
             containerClassName="flex items-center justify-start"
         >
 
@@ -116,6 +100,6 @@ export function FirstMainBlock({ onOpenPopup }: FirstMainBlockProps) {
 
 
 
-        </FullWidthBgSection>
+        </FullWidthBgSection >
     );
 }

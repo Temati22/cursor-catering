@@ -7,8 +7,9 @@ WORKDIR /app
 # Копирование package.json и package-lock.json
 COPY package*.json ./
 
-# Установка зависимостей
-RUN npm ci
+# Установка зависимостей (пропускаем установку браузеров Playwright в Docker)
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+RUN npm ci --ignore-scripts || npm ci
 
 # Копирование исходного кода
 COPY . .
@@ -16,5 +17,5 @@ COPY . .
 # Открытие порта
 EXPOSE 3000
 
-# Команда запуска в режиме разработки
-CMD ["npm", "run", "dev"]
+# Команда запуска в режиме разработки с доступом из сети
+CMD ["npm", "run", "dev:network"]

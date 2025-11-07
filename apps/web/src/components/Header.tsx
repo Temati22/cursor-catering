@@ -1,42 +1,22 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CartIcon } from './ui/CartIcon';
 import { FavoritesIcon } from './ui/FavoritesIcon';
 import { useContactsData } from '@/hooks/useContactsData';
 import { useGlobalData } from '@/hooks/useGlobalData';
 import { StrapiImage } from './ui/StrapiImage';
+import { useCart } from '@/contexts/CartContext';
+import { useFavorites } from '@/contexts/FavoritesContext';
+import { getImageUrl } from '@/lib/imageUtils';
+import { apiClient, Service, EventPage } from '@/lib/api';
 
 // Константы для навигации
 const NAVIGATION_ITEMS = [
     { href: '/about', label: 'О нас' },
-    { href: '/menus', label: 'Меню и услуги' },
-    { href: '/gallery', label: 'Галерея' },
+    { href: '/galery', label: 'Галерея' },
     { href: '/contacts', label: 'Контакты' }
-];
-
-const EVENT_ITEMS = [
-    { href: '/events', label: 'Все праздники', isMain: true },
-    { href: '/events/new-year', label: 'Новый год' },
-    { href: '/events/womens-day', label: '8 Марта' },
-    { href: '/events/february-23', label: '23 Февраля' },
-    { href: '/events/company-day', label: 'День компании' },
-    { href: '/events/birthday', label: 'День рождения' },
-    { href: '/events/professional-day', label: 'Профессиональный праздник' },
-    { href: '/events/wedding', label: 'Свадьба' },
-    { href: '/events/anniversary', label: 'Юбилей' },
-    { href: '/events/christening', label: 'Крестины / Крещение' },
-    { href: '/events/bachelorette', label: 'Девичник' },
-    { href: '/events/picnic', label: 'Пикники и барбекю' },
-    { href: '/events/graduation', label: 'Выпускной' },
-    { href: '/events/knowledge-day', label: 'День знаний' },
-    { href: '/events/holiday', label: 'День святых' },
-    { href: '/events/easter', label: 'Пасха' },
-    { href: '/events/presentation', label: 'Презентация' },
-    { href: '/events/conference', label: 'Конференция' },
-    { href: '/events/photoshoot', label: 'Фотосессия' },
-    { href: '/events/business-breakfast', label: 'Бизнес-завтрак' }
 ];
 
 const CONTACT_LINKS = [
@@ -73,7 +53,7 @@ const Icon = ({ name, className = "w-5 h-5" }: { name: string; className?: strin
     };
 
     return (
-        <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <svg className={className} fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
             {icons[name as keyof typeof icons]}
         </svg>
     );
@@ -84,7 +64,7 @@ const Logo = ({ logo, siteName, loading }: { logo: any; siteName: string; loadin
     <Link href="/" className="flex items-center">
         {!loading && logo?.url ? (
             <StrapiImage
-                src={logo.url.startsWith('http') ? logo.url : `http://localhost:1337${logo.url}`}
+                src={getImageUrl(logo.url)}
                 alt={logo.alternativeText || siteName || 'Logo'}
                 width={logo.width}
                 height={logo.height}
@@ -103,38 +83,85 @@ const Logo = ({ logo, siteName, loading }: { logo: any; siteName: string; loadin
 );
 
 // Компонент навигационного элемента
-const NavItem = ({ href, children, className = "" }: { href: string; children: React.ReactNode; className?: string }) => (
+const NavItem = ({ href, children, className = "", onClick }: { href: string; children: React.ReactNode; className?: string; onClick?: () => void }) => (
     <Link
         href={href}
         className={`text-white hover:text-gray-300 px-3 py-2 text-sm font-medium transition-colors duration-200 ${className}`}
+        onClick={onClick}
     >
         {children}
     </Link>
 );
 
-// Компонент выпадающего меню событий
-const EventsDropdown = () => (
-    <div className="group relative">
-        <button className="text-white hover:text-gray-300 text-sm font-medium transition-colors duration-200 flex items-center px-3 py-2">
-            Праздники
-            <Icon name="chevron" className="ml-1 h-4 w-4" />
-        </button>
-        <div className="absolute left-0 mt-1 w-56 bg-hi-white rounded-lg shadow-lg border border-hi-silver py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 max-h-[400px] overflow-y-auto">
-            {EVENT_ITEMS.map((item) => (
-                <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`block px-4 py-2 text-sm transition-colors duration-200 ${item.isMain
-                        ? 'font-semibold text-hi-platinum hover:bg-hi-silver border-b border-hi-silver mb-1'
-                        : 'text-hi-graphite hover:bg-hi-silver hover:text-hi-platinum'
-                        }`}
-                >
-                    {item.label}
-                </Link>
-            ))}
+// Компонент выпадающего меню "Меню и услуги"
+const MenuServicesDropdown = ({ services }: { services: Service[] }) => {
+    const menuServicesItems = [
+        { href: '/services', label: 'Все услуги', isMain: true },
+        ...services.map((service) => ({
+            href: `/services/${service.slug}`,
+            label: service.TitleInmenu || service.Title,
+            isMain: false
+        }))
+    ];
+
+    return (
+        <div className="group relative">
+            <button className="text-white hover:text-gray-300 text-sm font-medium transition-colors duration-200 flex items-center px-3 py-2">
+                Меню и услуги
+                <Icon name="chevron" className="ml-1 h-4 w-4" />
+            </button>
+            <div className="absolute left-0 mt-1 w-56 bg-hi-white rounded-lg shadow-lg border border-hi-silver py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 max-h-[400px] overflow-y-auto">
+                {menuServicesItems.map((item) => (
+                    <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`block px-4 py-2 text-sm transition-colors duration-200 ${item.isMain
+                            ? 'font-semibold text-hi-platinum hover:bg-hi-silver border-b border-hi-silver mb-1'
+                            : 'text-hi-graphite hover:bg-hi-silver hover:text-hi-platinum'
+                            }`}
+                    >
+                        {item.label}
+                    </Link>
+                ))}
+            </div>
         </div>
-    </div>
-);
+    );
+};
+
+// Компонент выпадающего меню событий
+const EventsDropdown = ({ events }: { events: EventPage[] }) => {
+    const eventItems = [
+        { href: '/events', label: 'Все праздники', isMain: true },
+        ...events.map((event) => ({
+            href: `/events/${event.Slug}`,
+            label: event.TitleInmenu || event.title,
+            isMain: false
+        }))
+    ];
+
+    return (
+        <div className="group relative">
+            <button className="text-white hover:text-gray-300 text-sm font-medium transition-colors duration-200 flex items-center px-3 py-2">
+                События
+                <Icon name="chevron" className="ml-1 h-4 w-4" />
+            </button>
+            <div className="absolute left-0 mt-1 w-56 bg-hi-white rounded-lg shadow-lg border border-hi-silver py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 max-h-[400px] overflow-y-auto">
+                {eventItems.map((item) => (
+                    <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`block px-4 py-2 text-sm transition-colors duration-200 ${item.isMain
+                            ? 'font-semibold text-hi-platinum hover:bg-hi-silver border-b border-hi-silver mb-1'
+                            : 'text-hi-graphite hover:bg-hi-silver hover:text-hi-platinum'
+                            }`}
+                    >
+                        {item.label}
+                    </Link>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 // Компонент контактных ссылок
 const ContactLinks = ({ primaryPhone }: { primaryPhone: string }) => (
@@ -153,68 +180,167 @@ const ContactLinks = ({ primaryPhone }: { primaryPhone: string }) => (
     </div>
 );
 
-// Компонент мобильного меню
+// Компонент мобильного меню (оверлей)
 const MobileMenu = ({
     isOpen,
     onClose,
     eventsOpen,
-    onEventsToggle
+    onEventsToggle,
+    menuServicesOpen,
+    onMenuServicesToggle,
+    services,
+    events
 }: {
     isOpen: boolean;
     onClose: () => void;
     eventsOpen: boolean;
     onEventsToggle: () => void;
+    menuServicesOpen: boolean;
+    onMenuServicesToggle: () => void;
+    services: Service[];
+    events: EventPage[];
 }) => {
     if (!isOpen) return null;
 
+    const menuServicesItems = [
+        { href: '/services', label: 'Все услуги', isMain: true },
+        ...services.map((service) => ({
+            href: `/services/${service.slug}`,
+            label: service.TitleInmenu || service.Title,
+            isMain: false
+        }))
+    ];
+
+    const eventItems = [
+        { href: '/events', label: 'Все праздники', isMain: true },
+        ...events.map((event) => ({
+            href: `/events/${event.Slug}`,
+            label: event.TitleInmenu || event.title,
+            isMain: false
+        }))
+    ];
+
     return (
-        <div className="md:hidden border-t border-gray-600" style={{ backgroundColor: '#1E1F26' }}>
-            <div className="px-4 pt-2 pb-3 space-y-1">
-                {NAVIGATION_ITEMS.map((item) => (
-                    <NavItem
-                        key={item.href}
-                        href={item.href}
-                        className="block px-3 py-2 text-base font-medium hover:bg-gray-700 rounded-md"
-                    >
-                        {item.label}
-                    </NavItem>
-                ))}
+        <div className="md:hidden fixed inset-0 z-50">
+            {/* Backdrop */}
+            <button
+                aria-label="Закрыть меню"
+                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                onClick={onClose}
+            />
 
-                <NavItem
-                    href="/favorites"
-                    className="block px-3 py-2 text-base font-medium hover:bg-gray-700 rounded-md"
-                >
-                    Избранное
-                </NavItem>
+            {/* Panel */}
+            <div className="absolute inset-y-0 right-0 w-full max-w-sm" style={{ backgroundColor: '#1E1F26' }}>
+                <div className="h-full flex flex-col border-l border-gray-700">
+                    {/* Header of panel */}
+                    <div className="flex items-center justify-between px-4 h-14 border-b border-gray-700">
+                        <span className="text-white font-medium">Меню</span>
+                        <button
+                            onClick={onClose}
+                            aria-label="Закрыть меню"
+                            className="text-white hover:text-gray-300 p-2"
+                        >
+                            <Icon name="close" className="h-6 w-6 text-hi-yellow" />
+                        </button>
+                    </div>
 
-                <div>
-                    <button
-                        onClick={onEventsToggle}
-                        className="w-full flex items-center justify-between px-3 py-2 text-base font-medium text-white hover:text-gray-300 hover:bg-gray-700 rounded-md transition-colors"
-                    >
-                        Праздники
-                        <Icon
-                            name="chevron"
-                            className={`h-4 w-4 transition-transform ${eventsOpen ? 'rotate-180' : ''}`}
-                        />
-                    </button>
-                    {eventsOpen && (
-                        <div className="pl-4 mt-1 space-y-1">
-                            {EVENT_ITEMS.map((item) => (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={`block px-3 py-2 text-sm transition-colors rounded-md ${item.isMain
-                                        ? 'font-semibold text-gray-300 hover:bg-gray-700 border-b border-gray-600 mb-1'
-                                        : 'font-medium text-white hover:text-gray-300 hover:bg-gray-700'
-                                        }`}
-                                    onClick={onClose}
-                                >
-                                    {item.label}
-                                </Link>
-                            ))}
+                    {/* Content */}
+                    <div className="px-4 py-3 space-y-1 overflow-y-auto">
+                        {NAVIGATION_ITEMS.map((item) => (
+                            <NavItem
+                                key={item.href}
+                                href={item.href}
+                                className="block px-3 py-2 text-base font-medium hover:bg-gray-700 rounded-lg"
+                                onClick={onClose}
+                            >
+                                {item.label}
+                            </NavItem>
+                        ))}
+
+                        <div className="pt-1">
+                            <button
+                                onClick={onMenuServicesToggle}
+                                className="w-full flex items-center justify-between px-3 py-2 text-base font-medium text-white hover:text-gray-300 hover:bg-gray-700 rounded-lg transition-colors"
+                                aria-expanded={menuServicesOpen}
+                                aria-controls="mobile-menu-services"
+                            >
+                                Меню и услуги
+                                <Icon
+                                    name="chevron"
+                                    className={`h-4 w-4 transition-transform ${menuServicesOpen ? 'rotate-180' : ''}`}
+                                />
+                            </button>
+                            {menuServicesOpen && (
+                                <div id="mobile-menu-services" className="pl-2 mt-1 space-y-1">
+                                    {menuServicesItems.map((item) => (
+                                        <Link
+                                            key={item.href}
+                                            href={item.href}
+                                            className={`block px-3 py-2 text-sm transition-colors rounded-lg ${item.isMain
+                                                ? 'font-semibold text-gray-300 hover:bg-gray-700 border-b border-gray-600 mb-1'
+                                                : 'font-medium text-white hover:text-gray-300 hover:bg-gray-700'
+                                                }`}
+                                            onClick={onClose}
+                                        >
+                                            {item.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    )}
+
+                        <NavItem
+                            href="/favorites"
+                            className="block px-3 py-2 text-base font-medium hover:bg-gray-700 rounded-lg"
+                            onClick={onClose}
+                        >
+                            Избранное
+                        </NavItem>
+
+                        <div className="pt-1">
+                            <button
+                                onClick={onEventsToggle}
+                                className="w-full flex items-center justify-between px-3 py-2 text-base font-medium text-white hover:text-gray-300 hover:bg-gray-700 rounded-lg transition-colors"
+                                aria-expanded={eventsOpen}
+                                aria-controls="mobile-events"
+                            >
+                                События
+                                <Icon
+                                    name="chevron"
+                                    className={`h-4 w-4 transition-transform ${eventsOpen ? 'rotate-180' : ''}`}
+                                />
+                            </button>
+                            {eventsOpen && (
+                                <div id="mobile-events" className="pl-2 mt-1 space-y-1">
+                                    {eventItems.map((item) => (
+                                        <Link
+                                            key={item.href}
+                                            href={item.href}
+                                            className={`block px-3 py-2 text-sm transition-colors rounded-lg ${item.isMain
+                                                ? 'font-semibold text-gray-300 hover:bg-gray-700 border-b border-gray-600 mb-1'
+                                                : 'font-medium text-white hover:text-gray-300 hover:bg-gray-700'
+                                                }`}
+                                            onClick={onClose}
+                                        >
+                                            {item.label}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Quick contacts */}
+                        <div className="pt-3">
+                            <a
+                                href="#contacts"
+                                className="w-full inline-flex items-center justify-center bg-[#BFA76F] hover:bg-[#BFA76F]/90 text-white px-4 py-3 rounded-lg font-medium text-sm transition-all shadow-hi hover:shadow-hi-hover"
+                                aria-label="Связаться"
+                                onClick={onClose}
+                            >
+                                Связаться
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -224,14 +350,62 @@ const MobileMenu = ({
 export default function Header() {
     const { title: siteName, primaryPhone } = useContactsData();
     const { logo, loading } = useGlobalData();
-    console.log('Header - logo:', logo);
-    console.log('Header - loading:', loading);
+    const { state: cartState } = useCart();
+    const { state: favState } = useFavorites();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [eventsMobileOpen, setEventsMobileOpen] = useState(false);
+    const [menuServicesMobileOpen, setMenuServicesMobileOpen] = useState(false);
+    const [services, setServices] = useState<Service[]>([]);
+    const [servicesLoading, setServicesLoading] = useState(true);
+    const [events, setEvents] = useState<EventPage[]>([]);
+    const [eventsLoading, setEventsLoading] = useState(true);
 
     const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
     const toggleEventsMobile = () => setEventsMobileOpen(!eventsMobileOpen);
+    const toggleMenuServicesMobile = () => setMenuServicesMobileOpen(!menuServicesMobileOpen);
     const closeMobileMenu = () => setMobileMenuOpen(false);
+
+    // Загружаем услуги из API
+    useEffect(() => {
+        const fetchServices = async () => {
+            try {
+                setServicesLoading(true);
+                const response = await apiClient.getServices({
+                    populate: '*'
+                });
+                setServices(response.data || []);
+            } catch (err) {
+                console.error('Error fetching services for header:', err);
+                // В случае ошибки используем пустой массив
+                setServices([]);
+            } finally {
+                setServicesLoading(false);
+            }
+        };
+
+        fetchServices();
+    }, []);
+
+    // Загружаем события из API
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                setEventsLoading(true);
+                const response = await apiClient.getEventPages({
+                    populate: '*'
+                });
+                setEvents(response.data || []);
+            } catch (err) {
+                console.error('Error fetching events for header:', err);
+                // В случае ошибки используем пустой массив
+                setEvents([]);
+            } finally {
+                setEventsLoading(false);
+            }
+        };
+
+        fetchEvents();
+    }, []);
 
     return (
         <header className="shadow-hi shadow-to-block  sticky top-0 z-50" style={{ backgroundColor: '#1E1F26' }}>
@@ -242,38 +416,63 @@ export default function Header() {
 
                     {/* Десктопная навигация */}
                     <nav className="hidden md:flex space-x-8">
-                        {NAVIGATION_ITEMS.slice(0, 3).map((item) => (
+                        {NAVIGATION_ITEMS.slice(0, 1).map((item) => (
                             <NavItem key={item.href} href={item.href}>
                                 {item.label}
                             </NavItem>
                         ))}
-                        <EventsDropdown />
+                        <MenuServicesDropdown services={services} />
+                        {NAVIGATION_ITEMS.slice(1, 2).map((item) => (
+                            <NavItem key={item.href} href={item.href}>
+                                {item.label}
+                            </NavItem>
+                        ))}
+                        <EventsDropdown events={events} />
                         <NavItem href="/contacts">Контакты</NavItem>
                     </nav>
 
                     {/* Контакты, избранное и корзина */}
                     <div className="hidden lg:flex items-center space-x-4">
                         <ContactLinks primaryPhone={primaryPhone} />
-                        <div className="bg-hi-white/10 hover:bg-hi-white/20 rounded-lg p-2 transition-colors duration-200">
+                        <div className=" hover:bg-hi-white/20 rounded-lg p-2 transition-colors duration-200">
                             <FavoritesIcon />
                         </div>
-                        <div className="bg-hi-yellow hover:bg-hi-yellow/90 rounded-lg p-2 transition-colors duration-200">
+                        <div className="bg-hi-yellow hover:bg-hi-yellow/90 rounded-lg transition-colors duration-200">
                             <CartIcon />
                         </div>
                     </div>
 
-                    {/* Мобильная кнопка меню */}
-                    <button
-                        type="button"
-                        className="md:hidden text-white hover:text-gray-300 p-1"
-                        aria-label={mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
-                        onClick={toggleMobileMenu}
-                    >
-                        <Icon
-                            name={mobileMenuOpen ? 'close' : 'menu'}
-                            className="h-6 w-6 text-hi-yellow"
-                        />
-                    </button>
+                    {/* Быстрые действия + бургер на мобильных */}
+                    <div className="flex items-center space-x-2 md:hidden">
+                        <Link
+                            href="/favorites"
+                            aria-label="Избранное"
+                            className="mw-9 h-9 p-2 rounded-xl bg-hi-white/10 hover:bg-hi-white/20 flex items-center justify-center transition-colors max-[360px]:hidden"
+                        >
+                            <FavoritesIcon asLink={false} size={20} showBadge={false} />
+                            {favState.totalItems > 0 && (
+                                <span className="ml-2 text-[11px] text-white">{(favState.totalItems > 99 ? '99+' : favState.totalItems) + ' шт '}</span>
+                            )}
+                        </Link>
+
+
+                        <div className="mw-9 h-9 p-2 rounded-xl bg-[#BFA76F] hover:bg-[#BFA76F]/90 flex items-center justify-center transition-colors">
+                            <CartIcon compact size={20} color="#FFFFFF" showBadge={false} />
+                            {cartState.totalItems > 0 && (
+                                <span className="ml-2 text-[11px] text-white">{(cartState.totalItems > 99 ? '99+' : cartState.totalItems) + ' шт'}</span>
+                            )}
+                        </div>
+
+
+                        <button
+                            type="button"
+                            className="w-9 h-9 rounded-xl bg-hi-white/10 hover:bg-hi-white/20 flex items-center justify-center transition-colors"
+                            aria-label={mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
+                            onClick={toggleMobileMenu}
+                        >
+                            <Icon name={mobileMenuOpen ? 'close' : 'menu'} className="h-5 w-5 text-white" />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Мобильное меню */}
@@ -282,6 +481,10 @@ export default function Header() {
                     onClose={closeMobileMenu}
                     eventsOpen={eventsMobileOpen}
                     onEventsToggle={toggleEventsMobile}
+                    menuServicesOpen={menuServicesMobileOpen}
+                    onMenuServicesToggle={toggleMenuServicesMobile}
+                    services={services}
+                    events={events}
                 />
             </div>
         </header>

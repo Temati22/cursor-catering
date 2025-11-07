@@ -22,7 +22,7 @@ export function useContactsData() {
                     apiClient.getGlobal()
                 ]);
                 
-                if (contactsResponse.status === 'fulfilled') {
+                if (contactsResponse.status === 'fulfilled' && contactsResponse.value !== null) {
                     const contactsData = contactsResponse.value.data || contactsResponse.value;
                     setContactsData(contactsData);
                 }

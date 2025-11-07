@@ -17,3 +17,10 @@
     margin: 0;
     padding: 0;
 }
+
+/* Убираем фон на мобильных устройствах */
+@media (max-width: 767px) {
+    .fullWidthSection {
+        background-image: none !important;
+    }
+}

@@ -2,16 +2,23 @@
  * Утилиты для работы с изображениями в проекте Hi-catering
  */
 
-// Helper function to get absolute URL for images
+// Helper function to get absolute URL for images (client-safe)
 export const getImageUrl = (url: string): string => {
   if (!url) return '';
   
+  // Если URL уже абсолютный
   if (url.startsWith('http')) {
+    // Заменяем внутренний URL на клиентский для избежания hydration mismatch
+    if (url.includes('://backend:')) {
+      return url.replace('://backend:', '://localhost:');
+    }
     return url;
   }
   
-  // В продакшене замените на ваш реальный API URL
-  return `http://localhost:1337${url}`;
+  // Всегда используем публичный URL для избежания hydration mismatch
+  // На сервере и клиенте должен быть один и тот же URL
+  const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+  return `${strapiUrl}${url}`;
 };
 
 // Интерфейс для изображений Strapi

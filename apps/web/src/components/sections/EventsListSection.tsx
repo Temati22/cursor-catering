@@ -95,9 +95,9 @@ export function EventsListSection({
                     {showTitle && (
                         <div className="text-center mb-12">
                             <div className="flex items-center justify-center mb-4">
-                                <Sparkles className="text-hi-green mr-2" size={32} />
+                                <Sparkles className="text-hi-platinum mr-2" size={32} />
                                 <h2 className="text-3xl font-bold text-hi-graphite">{title}</h2>
-                                <Sparkles className="text-hi-green ml-2" size={32} />
+                                <Sparkles className="text-hi-platinum ml-2" size={32} />
                             </div>
                         </div>
                     )}
@@ -118,9 +118,9 @@ export function EventsListSection({
                     {showTitle && (
                         <div className="text-center mb-12">
                             <div className="flex items-center justify-center mb-4">
-                                <Sparkles className="text-hi-green mr-2" size={32} />
+                                <Sparkles className="text-hi-platinum mr-2" size={32} />
                                 <h2 className="text-3xl font-bold text-hi-graphite">{title}</h2>
-                                <Sparkles className="text-hi-green ml-2" size={32} />
+                                <Sparkles className="text-hi-platinum ml-2" size={32} />
                             </div>
                         </div>
                     )}
@@ -141,9 +141,9 @@ export function EventsListSection({
                 {showTitle && (
                     <div className="text-center mb-12">
                         <div className="flex items-center justify-center mb-4">
-                            <Sparkles className="text-hi-green mr-2" size={32} />
+                            <Sparkles className="text-hi-platinum mr-2" size={32} />
                             <h2 className="text-3xl font-bold text-hi-graphite">{title}</h2>
-                            <Sparkles className="text-hi-green ml-2" size={32} />
+                            <Sparkles className="text-hi-platinum ml-2" size={32} />
                         </div>
                         <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
                             {description}
@@ -165,7 +165,7 @@ export function EventsListSection({
                     </div>
                 ) : (
                     <>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
                             {events.map((event) => (
                                 <EventCard
                                     key={event.id}

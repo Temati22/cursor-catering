@@ -6,14 +6,7 @@ import { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/api';
 import { StrapiImage } from '@/components/ui/StrapiImage';
 import { ImagePlaceholder } from '@/components/ui/ImagePlaceholder';
-
-// Helper function to get absolute URL for images
-const getImageUrl = (url: string): string => {
-    if (url.startsWith('http')) {
-        return url;
-    }
-    return `http://localhost:1337${url}`;
-};
+import { getImageUrl } from '@/lib/imageUtils';
 
 const features = [
     {

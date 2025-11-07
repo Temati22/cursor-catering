@@ -161,7 +161,7 @@ const AdvantagesGrid: React.FC<AdvantagesGridProps> = ({
         <section className={styles.advantagesGrid} aria-label="Наши преимущества">
 
             <div className={styles.container}>
-                <h2 className='text-2xl sm:text-3xl lg:text-4xl font-bold text-hi-graphite mb-6 text-center py-8'>Наши преимущества</h2>
+                <h2 className='text-2xl sm:text-3xl lg:text-4xl font-bold text-hi-graphite sm:mb-0 lg:mb-6 text-center py-8'>Наши преимущества</h2>
                 {/* Топ ряд - 3 элемента */}
                 {topAdvantages.length > 0 && (
                     <div className={styles.topRow}>

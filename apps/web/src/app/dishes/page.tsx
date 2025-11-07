@@ -7,14 +7,7 @@ import { CompactCtaSection } from '@/components/sections/CompactCtaSection';
 import { Breadcrumbs, BreadcrumbItem } from '@/components/ui/Breadcrumbs';
 import Link from 'next/link';
 import { ChefHat, Utensils } from 'lucide-react';
-
-// Helper function to get absolute URL for images
-const getImageUrl = (url: string): string => {
-    if (url.startsWith('http')) {
-        return url;
-    }
-    return `http://localhost:1337${url}`;
-};
+import { getImageUrl } from '@/lib/imageUtils';
 
 export const metadata: Metadata = {
     title: 'Все блюда | Hi-Catering',

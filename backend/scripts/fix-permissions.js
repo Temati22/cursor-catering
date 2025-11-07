@@ -34,6 +34,8 @@ async function fixPermissions() {
         'api::about.about.findOne',
         'api::contacts.contacts.find',
         'api::contacts.contacts.findOne',
+        'api::service.service.find',
+        'api::service.service.findOne',
         'api::marketing-banner.marketing-banner.find',
         'api::marketing-banner.marketing-banner.findOne',
         'api::order.order.create',

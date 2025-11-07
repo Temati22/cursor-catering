@@ -41,6 +41,14 @@
 
 .logo {
     margin-bottom: 3rem;
+    text-align: left;
+}
+
+/* Центрируем логотип на мобильных устройствах */
+@media (max-width: 768px) {
+    .logo {
+        text-align: center;
+    }
 }
 
 .logoMain {

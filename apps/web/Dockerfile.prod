@@ -1,0 +1,47 @@
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Установка зависимостей
+COPY package*.json ./
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+RUN npm ci --ignore-scripts
+
+# Копирование исходного кода и сборка
+COPY . .
+ENV NODE_ENV=production
+RUN npm run build
+
+# Production stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Установка только production зависимостей
+COPY package*.json ./
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+RUN npm ci --only=production --ignore-scripts
+
+# Копирование собранного приложения
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.ts ./
+COPY --from=builder /app/package*.json ./
+
+# Создание пользователя без root прав
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001 && \
+    chown -R nextjs:nodejs /app
+
+USER nextjs
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+CMD ["npm", "run", "start"]
+

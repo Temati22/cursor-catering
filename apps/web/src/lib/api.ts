@@ -1,18 +1,58 @@
 import axios from 'axios';
 
+const stripTrailingSlash = (url: string) => url.replace(/\/+$/, '');
+
+const ensureApiPath = (baseUrl: string) => {
+  const normalized = stripTrailingSlash(baseUrl);
+  return normalized.endsWith('/api') ? normalized : `${normalized}/api`;
+};
+
+const getPublicApiUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return stripTrailingSlash(process.env.NEXT_PUBLIC_API_URL);
+  }
+
+  if (process.env.NEXT_PUBLIC_STRAPI_URL) {
+    return ensureApiPath(process.env.NEXT_PUBLIC_STRAPI_URL);
+  }
+
+  return 'http://localhost:1337/api';
+};
+
+const getInternalApiUrl = () => {
+  const internalBase = process.env.STRAPI_INTERNAL_URL;
+  if (!internalBase) {
+    return null;
+  }
+  return ensureApiPath(internalBase);
+};
+
 // Get API URL with fallback
 const getApiUrl = () => {
-  if (typeof window !== 'undefined') {
-    // Client-side: use localhost for browser access
-    return 'http://localhost:1337/api';
-  } else {
-    // Server-side: use Docker service name for server-side rendering
-    return process.env.NEXT_PUBLIC_API_URL || 'http://backend:1337/api';
+  const publicUrl = getPublicApiUrl();
+
+  if (typeof window === 'undefined') {
+    return getInternalApiUrl() || publicUrl;
   }
+
+  return publicUrl;
 };
 
 const API_BASE_URL = getApiUrl();
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+const STRAPI_URL = (() => {
+  const publicBase =
+    process.env.NEXT_PUBLIC_STRAPI_URL ||
+    API_BASE_URL.replace(/\/api$/, '');
+
+  if (typeof window === 'undefined') {
+    const internalBase = process.env.STRAPI_INTERNAL_URL;
+    if (internalBase) {
+      return stripTrailingSlash(internalBase);
+    }
+  }
+
+  return stripTrailingSlash(publicBase);
+})();
 
 
 const api = axios.create({
@@ -20,7 +60,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 seconds timeout
+  timeout: 30000, // 30 seconds timeout (increased for large data requests)
   withCredentials: false, // Disable credentials for CORS
 });
 
@@ -41,27 +81,85 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error('API response error:', {
-      message: error?.message || 'Unknown error',
-      code: error?.code || 'UNKNOWN',
-      status: error?.response?.status || 'No status',
-      statusText: error?.response?.statusText || 'No status text',
-      data: error?.response?.data || 'No response data',
-      url: error?.config?.url || 'Unknown URL',
-      baseURL: error?.config?.baseURL || 'Unknown base URL',
-      method: error?.config?.method || 'Unknown method',
-      fullError: error
-    });
+    // Don't log 404 errors for /contacts endpoint as it's optional
+    // (contacts data might be in global instead)
+    const isContacts404 = error?.response?.status === 404 && 
+                          error?.config?.url?.includes('/contacts');
+    
+    if (!isContacts404) {
+      // Build error info object with comprehensive error handling
+      const errorInfo: Record<string, any> = {};
+      
+      // Basic error properties
+      if (error?.message) errorInfo.message = error.message;
+      if (error?.code) errorInfo.code = error.code;
+      if (error?.name) errorInfo.name = error.name;
+      
+      // Response properties (if available)
+      if (error?.response) {
+        if (error.response.status) errorInfo.status = error.response.status;
+        if (error.response.statusText) errorInfo.statusText = error.response.statusText;
+        if (error.response.data) errorInfo.data = error.response.data;
+        if (error.response.headers) errorInfo.headers = error.response.headers;
+      }
+      
+      // Request config properties
+      if (error?.config) {
+        if (error.config.url) errorInfo.url = error.config.url;
+        if (error.config.baseURL) errorInfo.baseURL = error.config.baseURL;
+        if (error.config.method) errorInfo.method = error.config.method;
+        if (error.config.timeout) errorInfo.timeout = error.config.timeout;
+      }
+      
+      // Network error properties
+      if (error?.request) {
+        errorInfo.request = {
+          readyState: error.request.readyState,
+          status: error.request.status,
+          statusText: error.request.statusText
+        };
+      }
+      
+      // Stack trace for debugging
+      if (error?.stack) errorInfo.stack = error.stack;
+      
+      // Log error with all available information
+      if (Object.keys(errorInfo).length > 0) {
+        console.error('API response error:', errorInfo);
+      } else {
+        // If error object is completely empty, try to stringify it
+        try {
+          const errorString = JSON.stringify(error, Object.getOwnPropertyNames(error));
+          console.error('API response error (stringified):', errorString);
+        } catch {
+          // If stringification fails, log the error type and constructor
+          console.error('API response error (unknown format):', {
+            type: typeof error,
+            constructor: error?.constructor?.name,
+            keys: error ? Object.keys(error) : [],
+            error: error
+          });
+        }
+      }
+    }
     return Promise.reject(error);
   }
 );
 
 // Helper function to convert relative URLs to absolute URLs
+// Always use public URL to avoid hydration mismatch between server and client
 const getAbsoluteUrl = (url: string): string => {
   if (url.startsWith('http')) {
+    // Replace internal URL with public URL to avoid hydration mismatch
+    if (url.includes('://backend:')) {
+      return url.replace('://backend:', '://localhost:');
+    }
     return url;
   }
-  return `${STRAPI_URL}${url}`;
+  
+  // Always use public URL for consistency between SSR and client
+  const publicUrl = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
+  return `${publicUrl}${url}`;
 };
 
 // Types
@@ -322,7 +420,7 @@ export interface Global {
     email?: string;
     address?: string;
   };
-  aboutImage?: {
+  aboutImage?: Array<{
     id: number;
     documentId: string;
     name: string;
@@ -346,7 +444,7 @@ export interface Global {
     createdAt: string;
     updatedAt: string;
     publishedAt: string;
-  };
+  }>;
   aboutText1?: string;
   aboutText2?: string;
   imgLogo?: {
@@ -589,6 +687,7 @@ export interface EventPage {
   documentId: string;
   Slug: string;
   title: string;
+  TitleInmenu?: string;
   Description: string;
   Presentation?: {
     id: number;
@@ -662,8 +761,164 @@ export interface EventPage {
     Title?: string;
     Description?: string;
     SubTitle?: string;
+    backgroundImg?: {
+      id: number;
+      documentId: string;
+      name: string;
+      url: string;
+      alternativeText?: string;
+      caption?: string;
+      width: number;
+      height: number;
+      formats?: {
+        thumbnail?: { url: string; width: number; height: number };
+        small?: { url: string; width: number; height: number };
+        medium?: { url: string; width: number; height: number };
+        large?: { url: string; width: number; height: number };
+      };
+      hash: string;
+      ext: string;
+      mime: string;
+      size: number;
+      previewUrl?: string;
+      provider: string;
+      createdAt: string;
+      updatedAt: string;
+      publishedAt: string;
+    };
   }>;
   dishes?: Dish[];
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+}
+
+export interface Service {
+  id: number;
+  documentId: string;
+  Title: string;
+  TitleInmenu?: string;
+  slug: string;
+  ShortDescription?: string;
+  Description?: string;
+  order?: number;
+  Images?: Array<{
+    id: number;
+    documentId: string;
+    name: string;
+    url: string;
+    alternativeText?: string;
+    caption?: string;
+    width: number;
+    height: number;
+    formats?: {
+      thumbnail?: { url: string; width: number; height: number };
+      small?: { url: string; width: number; height: number };
+      medium?: { url: string; width: number; height: number };
+      large?: { url: string; width: number; height: number };
+    };
+    hash: string;
+    ext: string;
+    mime: string;
+    size: number;
+    previewUrl?: string;
+    provider: string;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+  }>;
+  SEO?: Array<{
+    __component: string;
+    id: number;
+    Title?: string;
+    Description?: string;
+    keywords?: string;
+    [key: string]: any;
+  }>;
+  Menu?: Array<{
+    __component: string;
+    id: number;
+    Title?: string;
+    Description?: string;
+    smallDescription?: string;
+    menus?: Menu[];
+  }>;
+  File?: {
+    id: number;
+    url: string;
+    name: string;
+    ext: string;
+    mime: string;
+    size: number;
+  };
+  GaleryOfMedia?: Array<{
+    id: number;
+    documentId: string;
+    name: string;
+    url: string;
+    alternativeText?: string;
+    caption?: string;
+    width: number;
+    height: number;
+    formats?: {
+      thumbnail?: { url: string; width: number; height: number };
+      small?: { url: string; width: number; height: number };
+      medium?: { url: string; width: number; height: number };
+      large?: { url: string; width: number; height: number };
+    };
+    hash: string;
+    ext: string;
+    mime: string;
+    size: number;
+    previewUrl?: string;
+    provider: string;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+}
+
+export interface Gallery {
+  id: number;
+  documentId: string;
+  title: string;
+  description?: string;
+  images?: Array<{
+    id: number;
+    documentId: string;
+    name: string;
+    url: string;
+    alternativeText?: string;
+    caption?: string;
+    width: number;
+    height: number;
+    formats?: {
+      thumbnail?: { url: string; width: number; height: number };
+      small?: { url: string; width: number; height: number };
+      medium?: { url: string; width: number; height: number };
+      large?: { url: string; width: number; height: number };
+    };
+    hash: string;
+    ext: string;
+    mime: string;
+    size: number;
+    previewUrl?: string;
+    provider: string;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+  }>;
+  SEO?: Array<{
+    __component: string;
+    id: number;
+    Title?: string;
+    Description?: string;
+    keywords?: string;
+    [key: string]: any;
+  }>;
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
@@ -821,7 +1076,30 @@ export const apiClient = {
       const response = await api.get('/contacts');
       return response.data;
     } catch (error: any) {
-      console.error('Contacts API call failed:', error);
+      // If contacts endpoint returns 404 (not created yet), return null instead of throwing
+      // This is expected behavior since contacts might not exist as a separate entity
+      // The app can still work using global data
+      if (error?.response?.status === 404) {
+        console.log('Contacts endpoint not found (404) - using global data instead');
+        return null;
+      }
+      // Log non-404 errors with comprehensive details
+      const errorDetails: Record<string, any> = {};
+      if (error?.message) errorDetails.message = error.message;
+      if (error?.code) errorDetails.code = error.code;
+      if (error?.name) errorDetails.name = error.name;
+      if (error?.response?.status) errorDetails.status = error.response.status;
+      if (error?.response?.statusText) errorDetails.statusText = error.response.statusText;
+      if (error?.response?.data) errorDetails.data = error.response.data;
+      if (error?.config?.url) errorDetails.url = error.config.url;
+      if (error?.config?.baseURL) errorDetails.baseURL = error.config.baseURL;
+      
+      if (Object.keys(errorDetails).length > 0) {
+        console.error('Contacts API call failed:', errorDetails);
+      } else {
+        // Fallback: log the raw error if no details available
+        console.error('Contacts API call failed (no details):', error);
+      }
       throw error;
     }
   },
@@ -953,8 +1231,8 @@ export const apiClient = {
           queryParts.push('populate[Images]=true');
           queryParts.push('populate[GaleryOfMedia][populate][Images]=true');
           queryParts.push('populate[GaleryOfMedia][populate][backgroundImg]=true');
-          queryParts.push('populate[menus]=true');
-          queryParts.push('populate[SeoMenus]=true');
+          queryParts.push('populate[menus][populate]=*');
+          queryParts.push('populate[SeoMenus][populate]=*');
         }
 
         if (params?.sort) {
@@ -978,7 +1256,7 @@ export const apiClient = {
   getEventPageBySlug: async (slug: string) => {
     try {
       // Build specific populate query for gallery component, menus and SEO fields
-      const populateQuery = 'populate[Images]=true&populate[GaleryOfMedia][populate][Images]=true&populate[GaleryOfMedia][populate][backgroundImg]=true&populate[menus]=true&populate[SeoMenus]=true&populate[Presentation]=true&populate[dishes][populate][images]=true';
+      const populateQuery = 'populate[Images]=true&populate[GaleryOfMedia][populate][Images]=true&populate[GaleryOfMedia][populate][backgroundImg]=true&populate[menus][populate]=*&populate[SeoMenus][populate]=*&populate[Presentation]=true&populate[dishes][populate][images]=true';
       
       const response = await api.get(`/event-pages?filters[Slug][$eq]=${slug}&${populateQuery}`);
       const eventPages = response.data?.data || [];
@@ -994,6 +1272,142 @@ export const apiClient = {
       return { data: [eventPage] };
     } catch (error: any) {
       console.error('Failed to fetch event page:', error);
+      throw error;
+    }
+  },
+
+  // Get all services
+  getServices: async (params?: {
+    populate?: string;
+    filters?: any;
+    sort?: string;
+    pagination?: { page?: number; pageSize?: number };
+  }) => {
+    try {
+      let queryString = '';
+      const queryParts = [];
+
+      if (params?.populate) {
+        queryParts.push(`populate=${encodeURIComponent(params.populate)}`);
+      } else {
+        // Use detailed populate for images and SEO
+        queryParts.push('populate[Images]=true');
+        queryParts.push('populate[SEO]=true');
+      }
+
+      // Sort by order field by default, or use provided sort
+      if (params?.sort) {
+        queryParts.push(`sort=${encodeURIComponent(params.sort)}`);
+      } else {
+        // Default sort by order field (ascending), then by createdAt if order is not set
+        queryParts.push('sort=order:asc');
+      }
+
+      if (queryParts.length > 0) {
+        queryString = '?' + queryParts.join('&');
+      }
+
+      const url = `/services${queryString}`;
+      const response = await api.get(url);
+      return response.data;
+    } catch (error: any) {
+      console.error('Failed to fetch services:', error);
+      throw error;
+    }
+  },
+
+  // Get service by slug
+  getServiceBySlug: async (slug: string) => {
+    try {
+      // Используем детальный populate для всех полей
+      // Для динамической зоны Menu нужно использовать правильный синтаксис с указанием компонента
+      // Структура: Menu (dynamic zone) -> shared.menus-in-events (component) -> menus -> image
+      const populateParts = [
+        'populate[Images]=true',
+        'populate[SEO]=true',
+        'populate[File]=true',
+        'populate[GaleryOfMedia]=true',
+        'populate[Menu][on][shared.menus-in-events][populate][menus][populate][image]=true',
+        'populate[Menu][on][shared.menus-in-events][populate][menus][populate][dishes][populate][images]=true'
+      ];
+      
+      const populateQuery = populateParts.join('&');
+      
+      const response = await api.get(`/services?filters[slug][$eq]=${slug}&${populateQuery}`);
+      const services = response.data?.data || [];
+      const service = services.find((s: Service) => s.slug === slug);
+
+      if (!service) {
+        return { data: [] };
+      }
+
+      // Отладочная информация для проверки меню и изображений
+      if (service.Menu && Array.isArray(service.Menu)) {
+        service.Menu.forEach((block: NonNullable<Service['Menu']>[number], idx: number) => {
+          if (block?.menus && Array.isArray(block.menus)) {
+            block.menus.forEach((menu: Menu, menuIdx: number) => {
+              console.log(`[Service API] Menu ${idx}-${menuIdx}:`, {
+                name: menu.name,
+                hasImage: !!menu.image,
+                imageType: Array.isArray(menu.image) ? 'array' : typeof menu.image,
+                imageLength: Array.isArray(menu.image) ? menu.image.length : 'N/A'
+              });
+            });
+          }
+        });
+      }
+      
+      return { data: [service] };
+    } catch (error: any) {
+      // Если детальный populate не работает, пробуем упрощенный вариант
+      console.warn('[Service API] Detailed populate failed, trying simplified populate...', error?.response?.status);
+      
+      try {
+        // Упрощенный вариант - просто populate Menu
+        const populateParts = [
+          'populate[Images]=true',
+          'populate[SEO]=true',
+          'populate[File]=true',
+          'populate[GaleryOfMedia]=true',
+          'populate[Menu]=*'
+        ];
+        const populateQuery = populateParts.join('&');
+        
+        const response = await api.get(`/services?filters[slug][$eq]=${slug}&${populateQuery}`);
+        const services = response.data?.data || [];
+        const service = services.find((s: Service) => s.slug === slug);
+
+        if (!service) {
+          return { data: [] };
+        }
+
+        console.log('[Service API] Service loaded (simplified):', {
+          hasMenu: !!service.Menu,
+          menuType: Array.isArray(service.Menu) ? 'array' : typeof service.Menu,
+          menuLength: Array.isArray(service.Menu) ? service.Menu.length : 'N/A'
+        });
+        
+        return { data: [service] };
+      } catch (retryError: any) {
+        console.error('[Service API] Both attempts failed:', {
+          firstError: error?.response?.data || error?.message,
+          retryError: retryError?.response?.data || retryError?.message,
+          status: retryError?.response?.status,
+          statusText: retryError?.response?.statusText,
+          url: retryError?.config?.url
+        });
+        throw retryError;
+      }
+    }
+  },
+
+  // Get gallery data
+  getGallery: async () => {
+    try {
+      const response = await api.get('/gallery?populate[images]=true&populate[SEO]=true');
+      return response.data;
+    } catch (error: any) {
+      console.error('Gallery API call failed:', error);
       throw error;
     }
   },

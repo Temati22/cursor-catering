@@ -107,7 +107,7 @@ export function FullWidthBgSection({
     };
   } else {
     // Используем новый API с Tailwind классами
-    containerClasses = `${containerWidth} mx-auto px-8 ${containerClassName}`;
+    containerClasses = `${containerWidth} mx-auto md:px-8 lg:px-8 p-4 ${containerClassName}`;
   }
 
   return (

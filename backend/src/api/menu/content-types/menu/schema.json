@@ -83,12 +83,6 @@
     "isActive": {
       "type": "boolean",
       "default": true
-    },
-    "validFrom": {
-      "type": "datetime"
-    },
-    "validUntil": {
-      "type": "datetime"
     }
   }
 }

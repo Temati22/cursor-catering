@@ -25,7 +25,7 @@ export default function PopupTestPage() {
                 <Popup
                     isOpen={isPopupOpen}
                     onClose={() => setIsPopupOpen(false)}
-                    title="Заказать услуги кейтеринга"
+                    type="order-catering"
                 />
             </div>
         </div>

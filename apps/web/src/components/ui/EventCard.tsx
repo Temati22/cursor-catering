@@ -5,23 +5,13 @@ import Link from 'next/link';
 import { EventPage } from '@/lib/api';
 import { Calendar, Crown, Users, Heart, Gift, Star, Sparkles } from 'lucide-react';
 import { useFavorites } from '@/contexts/FavoritesContext';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface EventCardProps {
     event: EventPage;
     onImageError?: (eventId: number) => void;
     className?: string;
 }
-
-// Helper function to get absolute URL for images
-const getImageUrl = (url: string | undefined | null): string => {
-    if (!url) {
-        return '';
-    }
-    if (url.startsWith('http')) {
-        return url;
-    }
-    return `http://localhost:1337${url}`;
-};
 
 
 export function EventCard({

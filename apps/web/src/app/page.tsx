@@ -11,6 +11,8 @@ import { EventsListSection } from '@/components/sections/EventsListSection';
 import AdvantagesGrid from '@/components/sections/AdvantagesGrid';
 import { Popup, PopupType } from '@/components/ui/Popup';
 import { Calendar, Users } from 'lucide-react';
+import { SocialProofCtaSection } from '@/components/sections/SocialProofCtaSection';
+import { ServicesCardsSection } from '@/components/sections/ServicesCardsSection';
 
 
 export default function HomePage() {
@@ -24,7 +26,26 @@ export default function HomePage() {
   return (
     <>
       <FirstMainBlock onOpenPopup={() => handleOpenPopup('order-catering')} />
+
       <AboutSection />
+
+
+      <CompactCtaSection
+        variant="primary"
+        title="Нужна консультация?"
+        subtitle="Получите персональное предложение за 5 минут"
+        ctaText="Получить предложение"
+        showContactInfo={true}
+        showTimer={true}
+        className="w-full"
+      />
+
+      <ServicesCardsSection
+        showDescription={true}
+        title="Наши услуги"
+        description="Полный спектр услуг кейтеринга для любых мероприятий"
+      />
+
       <AdvantagesGrid />
 
       <EventsListSection
@@ -34,20 +55,6 @@ export default function HomePage() {
 
       {/* <FeaturesSection /> */}
 
-
-      {/* Первый горизонтальный CTA блок */}
-      <HorizontalCtaSection
-        variant="primary"
-        title="Готовы заказать кейтеринг?"
-        subtitle="Получите персональное предложение"
-        description="Оставьте заявку и наш менеджер свяжется с вами в течение 15 минут для обсуждения деталей вашего мероприятия."
-        ctaText="Получить предложение"
-        icon={<Calendar className="h-6 w-6" />}
-      />
-
-      <PopularFoodSection limit={3} />
-
-      {/* Компактный CTA блок */}
       <CompactCtaSection
         variant="primary"
         title="Нужна консультация?"
@@ -55,13 +62,34 @@ export default function HomePage() {
         ctaText="Получить предложение"
         showContactInfo={true}
         showTimer={true}
+        className="w-full"
       />
 
-      <MenusSection limit={4} showPrice={true} showDescription={true} />
+
+      <MenusSection limit={8} showPrice={true} showDescription={true} />
+
+      {/* Первый горизонтальный CTA блок */}
+
+      {/* <HorizontalCtaSection
+        variant="primary"
+        title="Готовы заказать кейтеринг?"
+        subtitle="Получите персональное предложение"
+        description="Оставьте заявку и наш менеджер свяжется с вами в течение 15 минут для обсуждения деталей вашего мероприятия."
+        ctaText="Получить предложение"
+        icon={<Calendar className="h-6 w-6" />}
+      /> */}
+
+      {/* <PopularFoodSection limit={3} /> */}
+
+      {/* Компактный CTA блок */}
+
+
+
+
 
 
       {/* CTA блок с социальными доказательствами */}
-      {/* <SocialProofCtaSection
+      <SocialProofCtaSection
         variant="testimonials"
         title="Почему выбирают нас?"
         subtitle="Более 500 довольных клиентов"
@@ -70,7 +98,7 @@ export default function HomePage() {
         showTestimonials={true}
         showStats={true}
         showFeatures={true}
-      /> */}
+      />
 
       {/* Второй горизонтальный CTA блок */}
       {/* <HorizontalCtaSection

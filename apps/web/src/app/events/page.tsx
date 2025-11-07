@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { EventsListSection } from '@/components/sections/EventsListSection';
+import { ServicesButtonsSection } from '@/components/sections/ServicesButtonsSection';
+import { ServicesCardsSection } from '@/components/sections/ServicesCardsSection';
 import { Breadcrumbs, BreadcrumbItem } from '@/components/ui/Breadcrumbs';
 import { Popup, PopupType } from '@/components/ui/Popup';
 import { UserCheck, ChefHat, Clock, CheckCircle2 } from 'lucide-react';
@@ -86,7 +88,7 @@ export default function EventsPage() {
 
                         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-hi-graphite mb-6 leading-tight">
                             Любое событие с выездом в
-                            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#BFA76F] to-hi-green">
+                            <span className="block text-transparent bg-clip-text bg-background-[#BFA76F]">
                                 Санкт-Петербурге
                             </span>
                         </h1>
@@ -139,6 +141,30 @@ export default function EventsPage() {
                     </div>
                 </div>
             </section >
+
+            {/* Services Buttons Section */}
+            {/* <ServicesButtonsSection
+                title="Наши услуги"
+                description="Выберите подходящую услугу для организации вашего мероприятия"
+                className="py-16"
+            /> */}
+
+            {/* Services Cards Section */}
+            <ServicesCardsSection
+                title="Все наши услуги"
+                description="Ознакомьтесь с полным спектром наших услуг для организации мероприятий"
+                showDescription={true}
+                className="py-16"
+                showCta={true}
+                ctaTitle="Нужна консультация?"
+                ctaDescription="Свяжитесь с нами для обсуждения деталей вашего мероприятия и получите персональное предложение"
+                ctaButtonText="Оставить заявку"
+                onCtaClick={() => handleOpenPopup('order-catering')}
+            />
+
+
+
+
 
             {/* Social Proof Section */}
             <section className="py-16 bg-hi-ash/30 border-y border-hi-silver/20" >
@@ -226,12 +252,14 @@ export default function EventsPage() {
             </section>
 
             {/* Events List Section */}
-            < EventsListSection
+            <EventsListSection
                 showTitle={true}
                 title="Окунитесь в мир наших событий"
                 description="Каждое мероприятие — это история, каждая служба — это миссия. Позвольте нам сделать ваш день исключительным."
                 className="p-8"
             />
+
+
 
             {/* Primary CTA */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-start mb-10" >

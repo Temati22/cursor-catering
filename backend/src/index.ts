@@ -275,6 +275,45 @@ export default {
           });
         }
 
+        // Проверяем и создаем права для services
+        const serviceFindPermission = await strapi.query('plugin::users-permissions.permission').findOne({
+          where: { 
+            action: 'api::service.service.find',
+            role: publicRole.id 
+          }
+        });
+
+        if (!serviceFindPermission) {
+          await strapi.query('plugin::users-permissions.permission').create({
+            data: {
+              action: 'api::service.service.find',
+              subject: null,
+              properties: {},
+              conditions: [],
+              role: publicRole.id,
+            }
+          });
+        }
+
+        const serviceFindOnePermission = await strapi.query('plugin::users-permissions.permission').findOne({
+          where: { 
+            action: 'api::service.service.findOne',
+            role: publicRole.id 
+          }
+        });
+
+        if (!serviceFindOnePermission) {
+          await strapi.query('plugin::users-permissions.permission').create({
+            data: {
+              action: 'api::service.service.findOne',
+              subject: null,
+              properties: {},
+              conditions: [],
+              role: publicRole.id,
+            }
+          });
+        }
+
         console.log('✅ Permissions configured successfully');
       }
     } catch (error) {

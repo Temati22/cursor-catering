@@ -10,18 +10,13 @@ import { ImageCarousel } from '@/components/ui/ImageCarousel';
 import { CompactCtaSection } from '@/components/sections/CompactCtaSection';
 import { EventMenusSection } from '@/components/sections/EventMenusSection';
 import { EventDishesSection } from '@/components/sections/EventDishesSection';
+import { ServicesCardsSection } from '@/components/sections/ServicesCardsSection';
+import { Popup, PopupType } from '@/components/ui/Popup';
+import { getImageUrl } from '@/lib/imageUtils';
 
 // Common CSS classes
 const CONTAINER_CLASSES = "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8";
-const API_BASE_URL = "http://localhost:1337";
-
-// Helper function to get absolute URL for images
-const getImageUrl = (url: string): string => {
-    if (url.startsWith('http')) {
-        return url;
-    }
-    return `${API_BASE_URL}${url}`;
-};
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL || 'http://localhost:1337';
 
 interface EventPageProps {
     params: Promise<{
@@ -37,6 +32,13 @@ export default function EventPageDetail({ params }: EventPageProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [popupOpen, setPopupOpen] = useState(false);
+    const [popupType, setPopupType] = useState<PopupType>('order-catering');
+
+    const handleOpenPopup = (type: PopupType) => {
+        setPopupType(type);
+        setPopupOpen(true);
+    };
 
     useEffect(() => {
         const fetchEventPage = async () => {
@@ -259,7 +261,7 @@ export default function EventPageDetail({ params }: EventPageProps) {
                                 <div className="space-y-4 pt-4">
                                     {eventPage.Presentation?.url && (
                                         <Link
-                                            href={`${API_BASE_URL}${eventPage.Presentation.url}`}
+                                            href={`${STRAPI_URL}${eventPage.Presentation.url}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="inline-flex items-center gap-3 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 group"
@@ -291,31 +293,65 @@ export default function EventPageDetail({ params }: EventPageProps) {
                     </div>
                 </section>
 
+
+                {/* Services Cards Section */}
+                <ServicesCardsSection
+                    title="Виды наших услуг"
+                    description="Ознакомьтесь с полным спектром наших услуг для организации вашего мероприятия"
+                    showDescription={true}
+                    className="py-16"
+                    showCta={true}
+                    ctaTitle="Нужна консультация?"
+                    ctaDescription="Свяжитесь с нами для обсуждения деталей вашего мероприятия и получите персональное предложение"
+                    ctaButtonText="Оставить заявку"
+                    onCtaClick={() => handleOpenPopup('order-catering')}
+                />
+
                 {/* SEO Content Section */}
                 {eventPage.SeoMenus && Array.isArray(eventPage.SeoMenus) && eventPage.SeoMenus.length > 0 &&
                     eventPage.SeoMenus.map((seoBlock, seoIndex) => (
-                        <section key={seoIndex} className="text-left p-12">
-                            {seoBlock.Title && (
-                                <h2 className="text-3xl font-bold text-hi-graphite text-left">
-                                    {seoBlock.Title}
-                                </h2>
-                            )}
-                            {seoBlock.Description && (
-                                <div className="prose prose-lg max-w-none text-hi-graphite mx-auto">
-                                    <div
-                                        className="leading-relaxed"
-                                        dangerouslySetInnerHTML={{ __html: seoBlock.Description }}
+                        <section key={seoIndex} className="text-left p-12 relative">
+                            {/* Background Image */}
+                            {seoBlock.backgroundImg?.url && (
+                                <div className="absolute inset-0 pointer-events-none mb-8 border rounded-2xl"
+                                    style={{
+                                        backgroundColor: '#e4e5e5'
+                                    }}
+                                >
+                                    <StrapiImage
+                                        src={getImageUrl(seoBlock.backgroundImg.url)}
+                                        alt={seoBlock.backgroundImg.alternativeText || 'SEO background'}
+                                        fill
+                                        className="object-contain object-right rounded-2xl"
                                     />
                                 </div>
                             )}
-                            {seoBlock.SubTitle && (
-                                <h3 className="text-xl font-semibold text-hi-platinum mb-8 mt-8">
-                                    {seoBlock.SubTitle}
-                                </h3>
-                            )}
+
+                            {/* Content */}
+                            <div className="relative z-10">
+                                {seoBlock.Title && (
+                                    <h2 className="text-3xl font-bold text-hi-graphite text-left mb-2">
+                                        {seoBlock.Title}
+                                    </h2>
+                                )}
+                                {seoBlock.Description && (
+                                    <div className="prose prose-lg max-w-none text-hi-graphite opacity-90 w-3/4 text-left">
+                                        <div
+                                            className="leading-relaxed"
+                                            dangerouslySetInnerHTML={{ __html: seoBlock.Description }}
+                                        />
+                                    </div>
+                                )}
+                                {seoBlock.SubTitle && (
+                                    <h3 className="text-xl font-semibold text-hi-platinum mb-8 mt-8">
+                                        {seoBlock.SubTitle}
+                                    </h3>
+                                )}
+                            </div>
                         </section>
                     ))
                 }
+
 
                 {/* Event Menus Section */}
                 {eventPage.menus && Array.isArray(eventPage.menus) && eventPage.menus.length > 0 &&
@@ -336,29 +372,30 @@ export default function EventPageDetail({ params }: EventPageProps) {
                 }
 
                 {/* CTA Section */}
-                <CompactCtaSection
+                {/* <CompactCtaSection
                     variant="primary"
                     title="Готовы организовать ваше мероприятие?"
                     subtitle="Свяжитесь с нами для бесплатной консультации"
                     ctaText="Заказать кейтеринг"
                     showContactInfo={true}
-                />
+                /> */}
 
 
                 {/* Event Dishes Section */}
-                <EventDishesSection
+                {/* <EventDishesSection
                     title="Блюда для мероприятия"
                     dishes={eventPage.dishes}
-                />
+                /> */}
 
                 {/* CTA Section */}
-                <CompactCtaSection
+                {/* <CompactCtaSection
                     variant="primary"
                     title="Готовы организовать ваше мероприятие?"
                     subtitle="Свяжитесь с нами для бесплатной консультации"
                     ctaText="Заказать кейтеринг"
                     showContactInfo={true}
-                />
+                /> */}
+
 
                 {/* Gallery */}
                 {eventPage.GaleryOfMedia && eventPage.GaleryOfMedia.Images && Array.isArray(eventPage.GaleryOfMedia.Images) && eventPage.GaleryOfMedia.Images.length > 0 ? (
@@ -374,6 +411,13 @@ export default function EventPageDetail({ params }: EventPageProps) {
                 ) : null}
 
             </article>
+
+            {/* Popup для обратной связи */}
+            <Popup
+                isOpen={popupOpen}
+                onClose={() => setPopupOpen(false)}
+                type={popupType}
+            />
         </div>
     );
 }

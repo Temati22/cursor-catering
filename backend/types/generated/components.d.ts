@@ -139,6 +139,7 @@ export interface SharedSeoMenuWrapper extends Struct.ComponentSchema {
     icon: 'hashtag';
   };
   attributes: {
+    backgroundImg: Schema.Attribute.Media<'images'>;
     Description: Schema.Attribute.RichText;
     SubTitle: Schema.Attribute.String;
     Title: Schema.Attribute.String;

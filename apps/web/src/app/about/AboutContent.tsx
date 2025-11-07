@@ -6,6 +6,7 @@ import { StrapiImage } from '@/components/ui/StrapiImage';
 import { HorizontalCtaSection } from '@/components/sections/HorizontalCtaSection';
 import { SocialProofCtaSection } from '@/components/sections/SocialProofCtaSection';
 import { Users, Heart } from 'lucide-react';
+import { getImageUrl } from '@/lib/imageUtils';
 
 // Компонент для отображения блока rich-text
 function RichTextBlock({ block }: { block: AboutBlock }) {
@@ -40,9 +41,7 @@ function QuoteBlock({ block }: { block: AboutBlock }) {
 function MediaBlock({ block }: { block: AboutBlock }) {
     if (block.__component !== 'shared.media' || !block.file) return null;
 
-    const imageUrl = block.file.url.startsWith('http')
-        ? block.file.url
-        : `http://localhost:1337${block.file.url}`;
+    const imageUrl = getImageUrl(block.file.url);
 
     return (
         <div className="flex justify-center my-6 sm:my-8">
@@ -72,9 +71,7 @@ function SliderBlock({ block }: { block: AboutBlock }) {
         <div className="my-6 sm:my-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 {block.files.map((file) => {
-                    const imageUrl = file.url.startsWith('http')
-                        ? file.url
-                        : `http://localhost:1337${file.url}`;
+                    const imageUrl = getImageUrl(file.url);
 
                     return (
                         <div key={file.id} className="relative">

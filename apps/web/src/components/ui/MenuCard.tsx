@@ -9,6 +9,7 @@ import { OrderButton } from './OrderButton';
 import { Star, ShoppingCart, Plus, Minus, Heart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useFavorites } from '@/contexts/FavoritesContext';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface MenuCardProps {
     menu: Menu;
@@ -17,17 +18,6 @@ interface MenuCardProps {
     onImageError?: (menuId: number) => void;
     className?: string;
 }
-
-// Helper function to get absolute URL for images
-const getImageUrl = (url: string | undefined | null): string => {
-    if (!url) {
-        return '';
-    }
-    if (url.startsWith('http')) {
-        return url;
-    }
-    return `http://localhost:1337${url}`;
-};
 
 // Rating component with stars
 function Rating({ rating = 5 }: { rating?: number }) {

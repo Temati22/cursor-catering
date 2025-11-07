@@ -4,6 +4,7 @@ import React from 'react';
 import { Dish } from '@/lib/api';
 import { StrapiImage } from './StrapiImage';
 import { ImagePlaceholder } from './ImagePlaceholder';
+import { getImageUrl } from '@/lib/imageUtils';
 
 interface DishMiniCardProps {
     dish: Dish;
@@ -11,12 +12,6 @@ interface DishMiniCardProps {
 }
 
 export function DishMiniCard({ dish, className = '' }: DishMiniCardProps) {
-    const getImageUrl = (url: string): string => {
-        if (url.startsWith('http')) {
-            return url;
-        }
-        return `http://localhost:1337${url}`;
-    };
 
     return (
         <div className={`bg-white rounded-lg border border-gray-200 overflow-hidden min-h-[120px] ${className}`}>

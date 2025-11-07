@@ -1,10 +1,10 @@
 .advantagesGrid {
-    padding: 80px 0;
-    background: #f8f9fa;
+    padding: 0 0 60px 0;
+    background: #F5F5F5;
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1280px;
     margin: 0 auto;
     padding: 0 20px;
 }
@@ -41,7 +41,7 @@
 }
 
 .textOnly {
-    padding: 30px 20px;
+    padding: 30px 20px 36px;
     text-align: left;
 }
 
@@ -177,7 +177,7 @@
 .description {
     font-size: 0.95rem;
     line-height: 1.6;
-    color: #6c757d;
+    color: #4a4a4a;
     margin: 0;
 }
 
@@ -231,7 +231,7 @@
     }
 
     .textOnly {
-        padding: 25px 15px;
+        padding: 25px 15px 32px;
         min-height: 180px;
     }
 
@@ -277,7 +277,7 @@
     }
 
     .textOnly {
-        padding: 20px 15px;
+        padding: 20px 15px 28px;
         min-height: 160px;
     }
 
@@ -298,6 +298,16 @@
 }
 
 @media (max-width: 480px) {
+
+    .withBackground {
+
+        justify-content: flex-start;
+    }
+
+    .advantagesGrid {
+        padding: 0 0;
+    }
+
     .container {
         padding: 0 10px;
     }
@@ -314,7 +324,7 @@
     }
 
     .description {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
     }
 
     .textOnly {
@@ -334,16 +344,16 @@
     }
 
     .cardNumber {
-        font-size: 0.9rem;
+        font-size: 1rem;
         /* Пропорционально увеличен */
-        padding: 5px 8px;
+        padding: 6px 10px;
         /* Пропорционально увеличен */
         top: 10px;
         right: 10px;
     }
 
     .withBackground {
-        min-height: 180px;
+        min-height: 220px;
     }
 
     .withBackground .content {
